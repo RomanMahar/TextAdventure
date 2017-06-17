@@ -75,6 +75,8 @@ public class TextController : MonoBehaviour {
 		// image visibility
 		Spiral.enabled = false;
 
+		AnswerInputField.DeactivateInputField();
+
 		// in response to an unresolved bug. Field stays active after replay
 		puzzleAnswer = "chamber";
 	}
@@ -108,11 +110,9 @@ public class TextController : MonoBehaviour {
 			if (northVisits == true && eastVisits == true && westVisits == true && southVisits == true) {allVisits = true;}}
 	
 	void increment_state(ref int x) {;
-
 		// integer. increment by 1. can also be written as: this_visit++;
 		this_visit = this_visit + 1;
 		x = this_visit;
-
 //		OLD CODE. VERY VERBOSE
 //		if 		(ThisState == "north_wall") {north_wall_visit = this_visit;}
 //		else if (ThisState == "east_wall") {east_wall_visit = this_visit;}
@@ -125,12 +125,15 @@ public class TextController : MonoBehaviour {
 		AnswerText = GameObject.Find("AnswerText").GetComponent<Text>();
 		Ans = AnswerText.text;
 		FixAnswer = Ans.ToLower();
-		print (Ans);
-		print (FixAnswer);
-		if (FixAnswer == "chamber" && allVisits == true) {myState = States.escape_1;}
-		else if (FixAnswer == "chamber") {myState = States.doom;}
+		AnswerInputField.DeactivateInputField();
+		if (FixAnswer == puzzleAnswer && allVisits == true) {myState = States.escape_1;}
+		else if (FixAnswer == puzzleAnswer) {myState = States.doom;}
 		else {myState = States.wrong_answer;}
+	}
 
+	void clearAll () {
+		AnswerInputField.text = "";
+		AnswerInputField.DeactivateInputField();
 	}
 
 	// state methods
@@ -177,7 +180,7 @@ public class TextController : MonoBehaviour {
 		MText.text = "You stand near the center of the chamber. What would you like to do?";
 
 		ControlText.text = "To examine the: \n" + 
-							"\tornate wall, press '1'\n" +
+							"\tdrawing wall, press '1'\n" +
 							"\twall the the right of it, press '2'\n" +		
 							"\twall the the left of it, press '3'\n" +
 							"\tback wall, press '4'\n" +
@@ -193,7 +196,8 @@ public class TextController : MonoBehaviour {
 
 	public void north_wall () {
 		MText.text = "At the center of the bare stone wall is a two-ringed spiral, painted in blue. It encircles " +
-			"a black square. At the end of the inner spiral, above the square is a glyph resembling a pair of legs with feet.";
+			"a black square. At the end of the inner spiral, above the square is a glyph resembling a pair of legs with feet. " +
+			"Above the drawing is an upwards pointing diamond shaped arrow superimposed over circle shape and cross. A compass perhaps?";
 		// set this state visit value to whatever northwall visit is;
 		this_visit = north_wall_visit;
 		ControlText.text = "To go back, press 0\n " +
@@ -220,7 +224,7 @@ public class TextController : MonoBehaviour {
 	}
 
 	void south_wall () {
-		MText.text = "Seek control; you may find escape or doom";
+		MText.text = "Seek control in the west; you may find escape or doom";
 		this_visit = south_wall_visit;
 		ControlText.text = "To go back, press 0";
 		if (Input.GetKeyDown(KeyCode.Alpha0)) {myState = States.chamber; increment_state(ref south_wall_visit);}
@@ -233,13 +237,13 @@ public class TextController : MonoBehaviour {
 							"To go back, press 0";
 		if (Input.GetKeyDown(KeyCode.Tab)) {AnswerInputField.ActivateInputField(); AnswerInputField.Select();}
 		else if (Input.GetKeyDown(KeyCode.Return)) {checkAnswer(FixAnswer);}
-		else if (Input.GetKeyDown(KeyCode.Alpha0)) {myState = States.chamber; AnswerInputField.text = "";}
+		else if (Input.GetKeyDown(KeyCode.Alpha0)) {myState = States.chamber; clearAll();}
 	}
 
 	void wrong_answer () {
 		MText.text = "Nothing happens";
 		ControlText.text = "To go back, press 0";
-		if (Input.GetKeyDown(KeyCode.Alpha0)) {myState = States.door; AnswerInputField.text = ""; AnswerInputField.DeactivateInputField();}	
+		if (Input.GetKeyDown(KeyCode.Alpha0)) {myState = States.door; clearAll ();}	
 	}
 
 	void doom () {
@@ -249,8 +253,8 @@ public class TextController : MonoBehaviour {
 			"You fall to your doom.";
 		
 		ControlText.text = "To play again, press space.";
-		AnswerInputField.DeactivateInputField ();
-		if (Input.GetKeyDown(KeyCode.Space)) {Start ();}
+		clearAll();
+		if (Input.GetKeyDown(KeyCode.Space)) {clearAll(); Start ();}
 		
 	}
 
@@ -264,8 +268,7 @@ public class TextController : MonoBehaviour {
 
 		
 		ControlText.text = "To play again, press space.";
-		AnswerInputField.DeactivateInputField ();
-		if (Input.GetKeyDown(KeyCode.Space)) {Start ();}
+		if (Input.GetKeyDown(KeyCode.Space)) {clearAll(); Start ();}
 		
 	}
 	
